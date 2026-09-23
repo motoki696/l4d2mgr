@@ -50,12 +50,18 @@ DB・通知・クールダウンは ac_core が処理する。
 - L4D2 は無人時にハイバネーションし、SourceMod の非同期DB処理が進まない。`sm_rotation_reload` は次にプレイヤーが入った時点で反映される（`changelevel` は無人でも即時）。
 - speedhack の閾値（ratio 1.25 × 5秒窓 × 3回連続）は未較正。実プレイで誤検知を観察して調整すること。
 
-## テスト
+## テスト（開発VM専用）
 
 ```bash
-# MariaDB に sql/ と SourceBans++ 相当のテスト用テーブルが必要（tests/test_app.py 参照）
-python tests/test_app.py
-cd web && python ../tests/test_rcon.py l4d2mgr_web/rcon.py
+# 1回だけ: テスト用DBを初期化（sourcebans / l4d2mgr を作り直すので本番では実行しないこと）
+sudo ./tests/setup_test_db.sh "$USER"
+
+# Python 3.12 の venv（uv 利用例）
+uv venv -p 3.12 .venv && uv pip install -p .venv -r web/requirements-dev.txt
+
+.venv/bin/python tests/test_app.py                               # WebGUI 結合テスト
+(cd web && ../.venv/bin/python ../tests/test_rcon.py l4d2mgr_web/rcon.py)   # RCON 単体テスト
+SPCOMP=/opt/sourcemod-1.12.0-7253/addons/sourcemod/scripting/spcomp64 ./scripts/build_plugins.sh
 ```
 
 ## 開発体制
