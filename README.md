@@ -48,7 +48,8 @@ DB・通知・クールダウンは ac_core が処理する。
 ## 既知の制約
 
 - L4D2 は無人時にハイバネーションし、SourceMod の非同期DB処理が進まない。`sm_rotation_reload` は次にプレイヤーが入った時点で反映される（`changelevel` は無人でも即時）。
-- speedhack の閾値（ratio 1.25 × 5秒窓 × 3回連続）は未較正。実プレイで誤検知を観察して調整すること。
+- speedhack の閾値（ratio 1.25 × 5秒窓 × 3回連続）は未較正。`l4d2mgr_ac_speed_debug 1` で窓ごとの ratio / スキップ理由を SourceMod ログに出力できるので、実プレイの分布を見て調整すること。
+- 記録経路の疎通確認: ゲーム内で Root 管理者が `sm_l4d2ac_selftest` を実行すると `selftest` 検知が1件記録される（WebGUI で却下して処理）。
 
 ## テスト（開発VM専用）
 

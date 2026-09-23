@@ -10,7 +10,7 @@ public Plugin myinfo =
     name = "L4D2 Manager: AC Speedhack",
     author = "motoki",
     description = "Speedhack detector (usercmd rate)",
-    version = "0.1.0",
+    version = "0.2.0",
     url = ""
 };
 
@@ -20,6 +20,7 @@ ConVar g_cvarSpeedRatio;
 ConVar g_cvarStrikes;
 ConVar g_cvarGrace;
 ConVar g_cvarMaxLoss;
+ConVar g_cvarDebug;
 
 int g_cmdCount[MAXPLAYERS+1];
 float g_windowStart[MAXPLAYERS+1];
@@ -40,6 +41,8 @@ public void OnPluginStart()
         "Ignore clients connected for less than this many seconds", 0, true, 0.0, true, 300.0);
     g_cvarMaxLoss = CreateConVar("l4d2mgr_ac_speed_maxloss", "0.10",
         "Skip windows when average packet loss is above this", 0, true, 0.0, true, 1.0);
+    g_cvarDebug = CreateConVar("l4d2mgr_ac_speed_debug", "0",
+        "Log every measurement window (0/1)", 0, true, 0.0, true, 1.0);
 
     AutoExecConfig(true, "l4d2mgr_ac_speedhack");
 }
@@ -86,9 +89,32 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
     float grace = g_cvarGrace.FloatValue;
     float maxloss = g_cvarMaxLoss.FloatValue;
 
-    if (GetClientTime(client) < grace || IsClientTimingOut(client) ||
-        GetClientAvgLoss(client, NetFlow_Both) > maxloss || elapsed > window * 3.0)
+    float loss = GetClientAvgLoss(client, NetFlow_Both);
+    char skip[32];
+    skip[0] = '\0';
+    if (GetClientTime(client) < grace)
     {
+        strcopy(skip, sizeof(skip), "grace");
+    }
+    else if (IsClientTimingOut(client))
+    {
+        strcopy(skip, sizeof(skip), "timingout");
+    }
+    else if (loss > maxloss)
+    {
+        FormatEx(skip, sizeof(skip), "loss=%.2f", loss);
+    }
+    else if (elapsed > window * 3.0)
+    {
+        FormatEx(skip, sizeof(skip), "stall=%.1fs", elapsed);
+    }
+
+    if (skip[0] != '\0')
+    {
+        if (g_cvarDebug.BoolValue)
+        {
+            LogMessage("[AC-SPEED] %N cmd/s=%.1f tickrate=%.0f ratio=%.2f SKIP %s", client, rate, tickrate, ratio, skip);
+        }
         g_cmdCount[client] = 0;
         g_windowStart[client] = now;
         return;
@@ -108,6 +134,11 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
     {
         g_strikes[client] = 0;
         g_maxRatio[client] = 0.0;
+    }
+
+    if (g_cvarDebug.BoolValue)
+    {
+        LogMessage("[AC-SPEED] %N cmd/s=%.1f tickrate=%.0f ratio=%.2f strikes=%d/%d", client, rate, tickrate, ratio, g_strikes[client], g_cvarStrikes.IntValue);
     }
 
     if (g_strikes[client] >= g_cvarStrikes.IntValue)

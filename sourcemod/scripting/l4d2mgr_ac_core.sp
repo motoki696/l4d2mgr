@@ -8,7 +8,7 @@ public Plugin myinfo =
     name = "L4D2 Manager: AC Core",
     author = "motoki",
     description = "Detection recording core (no auto-ban)",
-    version = "0.1.0",
+    version = "0.2.0",
     url = ""
 };
 
@@ -37,6 +37,8 @@ public void OnPluginStart()
     BuildPath(Path_SM, g_logPath, sizeof(g_logPath), "logs/l4d2mgr_ac.log");
 
     Connect();
+
+    RegAdminCmd("sm_l4d2ac_selftest", Cmd_SelfTest, ADMFLAG_ROOT, "Record a self-test detection for yourself");
 }
 
 public void OnMapStart()
@@ -73,15 +75,8 @@ public Action Timer_Reconnect(Handle timer)
     return Plugin_Stop;
 }
 
-public any Native_Report(Handle plugin, int numParams)
+bool DoReport(int client, const char[] detector, int severity, const char[] detail)
 {
-    int client = GetNativeCell(1);
-    char detector[33];
-    GetNativeString(2, detector, sizeof(detector));
-    int severity = GetNativeCell(3);
-    char detail[256];
-    GetNativeString(4, detail, sizeof(detail));
-
     // Validate client
     if (client <= 0 || client > MaxClients || !IsClientInGame(client) || IsFakeClient(client))
     {
@@ -197,10 +192,34 @@ public any Native_Report(Handle plugin, int numParams)
     return true;
 }
 
+public any Native_Report(Handle plugin, int numParams)
+{
+    int client = GetNativeCell(1);
+    char detector[33];
+    GetNativeString(2, detector, sizeof(detector));
+    int severity = GetNativeCell(3);
+    char detail[256];
+    GetNativeString(4, detail, sizeof(detail));
+
+    return DoReport(client, detector, severity, detail);
+}
+
 public void OnInsertDone(Database db, DBResultSet results, const char[] error, any data)
 {
     if (results == null)
     {
         LogError("[L4D2AC] insert failed: %s", error);
     }
+}
+
+public Action Cmd_SelfTest(int client, int args)
+{
+    if (client == 0)
+    {
+        ReplyToCommand(client, "[L4D2AC] Run this in-game (needs a player target).");
+        return Plugin_Handled;
+    }
+    bool ok = DoReport(client, "selftest", 1, "self-test issued by admin");
+    ReplyToCommand(client, ok ? "[L4D2AC] Self-test recorded. Check the WebGUI detections list." : "[L4D2AC] Self-test rejected (cooldown or invalid client).");
+    return Plugin_Handled;
 }
