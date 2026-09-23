@@ -1,0 +1,22 @@
+[Unit]
+Description=L4D2 Manager WebGUI
+After=network.target mariadb.service
+
+[Service]
+User=l4d2mgr
+Group=l4d2mgr
+WorkingDirectory=/opt/l4d2mgr-web
+EnvironmentFile=/etc/l4d2mgr-web/env
+ExecStart=/opt/l4d2mgr-web/venv/bin/uvicorn l4d2mgr_web.app:app --host 127.0.0.1 --port 8100 --workers 1 --proxy-headers --forwarded-allow-ips 127.0.0.1
+Restart=on-failure
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

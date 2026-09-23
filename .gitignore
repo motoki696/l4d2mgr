@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.smx
+sourcemod/plugins/
+*.tar.gz
+*.zip
+.env
+env

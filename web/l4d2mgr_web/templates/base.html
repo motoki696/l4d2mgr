@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>{% block title %}L4D2 Manager{% endblock %}</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body{margin:0;font-family:sans-serif;background:#121212;color:#e0e0e0;}
+a{color:#90caf9;text-decoration:none;}
+.header{display:flex;justify-content:space-between;align-items:center;padding:0.5rem 1rem;background:#1e1e1e;border-bottom:1px solid #333;}
+.header h1{margin:0;font-size:1.2rem;}
+.header .admin{margin-left:auto;display:flex;align-items:center;}
+.header .admin form{margin-left:0.5rem;}
+.btn{font-size:0.8rem;padding:0.25rem 0.5rem;border:none;border-radius:3px;cursor:pointer;}
+.btn-primary{background:#2196f3;color:#fff;}
+.btn-secondary{background:#6c757d;color:#fff;}
+.btn-danger{background:#d32f2f;color:#fff;}
+.form{margin-bottom:1rem;}
+.input{width:100%;padding:0.25rem;border:1px solid #555;background:#2e2e2e;color:#e0e0e0;border-radius:3px;margin-bottom:0.5rem;}
+.select{width:100%;padding:0.25rem;border:1px solid #555;background:#2e2e2e;color:#e0e0e0;border-radius:3px;margin-bottom:0.5rem;}
+.flash{padding:0.5rem;margin-bottom:0.5rem;border-radius:3px;}
+.flash.ok{background:#dcedc8;color:#2e7d32;}
+.flash.error{background:#ffcdd2;color:#c62828;}
+.container{padding:1rem;}
+.table-wrapper{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;}
+th,td{border:1px solid #555;padding:0.5rem;text-align:left;}
+th{background:#1e1e1e;}
+tr.disabled{color:#777;}
+pre{background:#2e2e2e;padding:0.5rem;max-height:320px;overflow:auto;border-radius:3px;color:#e0e0e0;}
+</style>
+</head>
+<body>
+<div class="header">
+<h1>L4D2 Manager</h1>
+{% if admin %}
+<div class="admin">
+<a href="/">ダッシュボード</a>&nbsp;|&nbsp;<a href="/detections">検知一覧</a>&nbsp;&nbsp;<span>{{ admin.user }}</span>
+<form action="/logout" method="post" class="form">
+<input type="hidden" name="csrf" value="{{ csrf }}">
+<button type="submit" class="btn btn-secondary">ログアウト</button>
+</form>
+</div>
+{% endif %}
+</div>
+<div class="container">
+{% for level, msg in flashes %}
+<div class="flash {{ level }}">{{ msg }}</div>
+{% endfor %}
+{% block content %}{% endblock %}
+</div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}検知一覧 - L4D2 Manager{% endblock %}
+{% block lang %}ja{% endblock %}
+
+{% block content %}
+<div>
+    <a href="/">← ダッシュボード</a>
+</div>
+<div style="margin-top: 1em;">
+    {% set statuses = ["new", "dismissed", "submitted", "all"] %}
+    {% set labels = {"new":"未対応","dismissed":"却下","submitted":"申請済み","all":"すべて"} %}
+    {% for s in statuses %}
+        {% if status == s %}
+            <strong>{{ labels[s] }}</strong>
+        {% else %}
+            <a href="/detections?status={{ s }}">{{ labels[s] }}</a>
+        {% endif %}
+        {% if not loop.last %} | {% endif %}
+    {% endfor %}
+</div>
+<p style="margin-top: 1em;">
+    検知は自動BANしません。「BAN申請」はSourceBans++のSubmissionsに登録され、最終判断はSourceBans++で行います。
+</p>
+
+<div class="table-wrapper">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>時刻(UTC)</th>
+                <th>検知器</th>
+                <th>重大度</th>
+                <th>プレイヤー</th>
+                <th>マップ</th>
+                <th>詳細</th>
+                <th>状態</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if rows %}
+                {% for r in rows %}
+                    <tr{% if r.status != "new" %} class="disabled"{% endif %}>
+                        <td>{{ r.id }}</td>
+                        <td>{{ r.ts }}</td>
+                        <td>{{ r.detector }}</td>
+                        <td>
+                            {% if r.severity == 3 %}
+                                高
+                            {% elif r.severity == 2 %}
+                                中
+                            {% else %}
+                                低
+                            {% endif %}
+                        </td>
+                        <td>
+                            {{ r.name }}<br>
+                            {{ r.steamid }}<br>
+                            {% if r.steamid64 != "0" %}
+                                <a href="https://steamcommunity.com/profiles/{{ r.steamid64 }}" target="_blank" rel="noopener noreferrer">プロフィール</a>
+                            {% endif %}
+                        </td>
+                        <td>{{ r.map }}</td>
+                        <td><code>{{ r.detail }}</code></td>
+                        <td>
+                            {% if r.status == "new" %}
+                                未対応
+                            {% elif r.status == "dismissed" %}
+                                却下
+                            {% elif r.status == "submitted" %}
+                                申請済み
+                            {% endif %}
+                            {% if r.reviewed_by %}
+                                <br>by {{ r.reviewed_by }}
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if r.status == "new" %}
+                                <form method="post" action="/detections/{{ r.id }}/submit" style="display:inline;">
+                                    <input type="hidden" name="csrf" value="{{ csrf }}">
+                                    <button type="submit" class="btn btn-danger">BAN申請</button>
+                                </form>
+                                <form method="post" action="/detections/{{ r.id }}/dismiss" style="display:inline;">
+                                    <input type="hidden" name="csrf" value="{{ csrf }}">
+                                    <button type="submit" class="btn btn-secondary">却下</button>
+                                </form>
+                            {% else %}
+                                &nbsp;
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="9">検知なし</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

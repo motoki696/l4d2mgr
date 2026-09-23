@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}ログイン - L4D2 Manager{% endblock %}
+{% block content %}
+<h2>ログイン</h2>
+<form action="/login" method="post" class="form">
+<input type="hidden" name="csrf" value="{{ csrf }}">
+<label>ユーザー名</label>
+<input type="text" name="username" autocomplete="username" required maxlength="128" class="input">
+<label>パスワード</label>
+<input type="password" name="password" autocomplete="current-password" required maxlength="128" class="input">
+<button type="submit" class="btn btn-primary">ログイン</button>
+</form>
+<p>SourceBans++ の管理者アカウントでログイン</p>
+{% endblock %}

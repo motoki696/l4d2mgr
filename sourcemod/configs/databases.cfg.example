@@ -1,0 +1,10 @@
+	// addons/sourcemod/configs/databases.cfg の "Databases" { ... } 内に追記
+	"l4d2mgr"
+	{
+		"driver"    "mysql"
+		"host"      "__DB_HOST__"
+		"database"  "l4d2mgr"
+		"user"      "l4d2mgr_game"
+		"pass"      ""
+		"port"      "3306"
+	}
