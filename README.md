@@ -11,6 +11,7 @@ SourceBans++ と同じ MariaDB を共有し、1つの WebGUI からプラグイ�
 | `sourcemod/scripting/l4d2mgr_ac_core.sp` | 検知基盤。native `L4D2AC_Report()` を受けて DB 記録・ファイルログ・管理者通知。**自動BANはしない** |
 | `sourcemod/scripting/l4d2mgr_ac_speedhack.sp` | 検知アドオン: usercmd/秒 と tickrate の比でスピードハックを検知 |
 | `sourcemod/scripting/include/l4d2mgr_ac.inc` | 検知アドオン用 API |
+| `sourcemod/scripting/l4d2mgr_modelock.sp` | ゲームモード固定。ロビー予約で許可外の `mp_gamemode` になった場合、接続を拒否し許可モード＋指定マップへ戻す（`l4d2mgr_modelock_allowed` / `_map`）。server.cfg に `sv_gametypes` / `mp_gamemode` も設定すること |
 | `web/l4d2mgr_web/` | WebGUI（FastAPI）。SourceBans++ 管理者アカウントでログイン、サーバー状態、ローテーション編集、マップ変更、検知一覧、SourceBans++ への BAN申請 |
 | `sql/` | DB スキーマと最小権限 GRANT（01 → 02 → 03 の順に適用） |
 | `tests/` | WebGUI 結合テスト（MariaDB + 偽RCONサーバー）、RCON クライアント単体テスト |
