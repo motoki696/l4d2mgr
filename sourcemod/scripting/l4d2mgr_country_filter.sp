@@ -16,6 +16,7 @@ ConVar g_cv_enable;
 Database g_db;
 StringMap g_blocklist;
 bool g_connecting;
+int g_lastCount = -1;
 char g_logPath[PLATFORM_MAX_PATH];
 
 public void OnPluginStart()
@@ -58,7 +59,11 @@ public void OnQueryResult(Database db, DBResultSet results, const char[] error, 
     }
     if (g_blocklist != null) { delete g_blocklist; }
     g_blocklist = newMap;
-    LogMessage("[CountryFilter] Loaded %d blocklist entries", count);
+    if (count != g_lastCount)
+    {
+        LogMessage("[CountryFilter] Blocklist entries: %d (was %d)", count, g_lastCount);
+        g_lastCount = count;
+    }
 }
 
 public Action TimerReload(Handle timer) { LoadBlocklist(); return Plugin_Continue; }
