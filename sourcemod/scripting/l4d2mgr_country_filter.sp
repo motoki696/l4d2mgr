@@ -25,7 +25,7 @@ public void OnPluginStart()
     BuildPath(Path_SM, g_logPath, sizeof(g_logPath), "logs/l4d2mgr_country_filter.log");
     RegAdminCmd("sm_l4d2cf_reload", Cmd_ReloadCountryFilter, ADMFLAG_CONFIG, "Reload country filter blocklist");
     RegAdminCmd("sm_l4d2cf_testip", Cmd_TestIp, ADMFLAG_CONFIG, "Test GeoIP lookup for an IP address (does not require a live connection)");
-    CreateTimer(60.0, TimerReload, _, TIMER_REPEAT | TIMER_FLAG_NO_MAPCHANGE);
+    CreateTimer(60.0, TimerReload, _, TIMER_REPEAT);
 }
 
 public void OnConfigsExecuted() { LoadBlocklist(); }

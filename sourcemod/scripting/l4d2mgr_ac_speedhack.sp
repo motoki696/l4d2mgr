@@ -113,7 +113,7 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
     {
         if (g_cvarDebug.BoolValue)
         {
-            LogMessage("[AC-SPEED] %N cmd/s=%.1f tickrate=%.0f ratio=%.2f SKIP %s", client, rate, tickrate, ratio, skip);
+            LogMessage("[AC-SPEED] %N cmd/s=%.1f tickrate=%.1f ratio=%.2f SKIP %s", client, rate, tickrate, ratio, skip);
         }
         g_cmdCount[client] = 0;
         g_windowStart[client] = now;
@@ -138,7 +138,7 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
 
     if (g_cvarDebug.BoolValue)
     {
-        LogMessage("[AC-SPEED] %N cmd/s=%.1f tickrate=%.0f ratio=%.2f strikes=%d/%d", client, rate, tickrate, ratio, g_strikes[client], g_cvarStrikes.IntValue);
+        LogMessage("[AC-SPEED] %N cmd/s=%.1f tickrate=%.1f ratio=%.2f strikes=%d/%d", client, rate, tickrate, ratio, g_strikes[client], g_cvarStrikes.IntValue);
     }
 
     if (g_strikes[client] >= g_cvarStrikes.IntValue)
@@ -154,7 +154,7 @@ public void OnPlayerRunCmdPost(int client, int buttons, int impulse, const float
         }
 
         char detail[256];
-        FormatEx(detail, sizeof(detail), "cmd/s=%.1f tickrate=%.0f ratio=%.2f max=%.2f windows=%d",
+        FormatEx(detail, sizeof(detail), "cmd/s=%.1f tickrate=%.1f ratio=%.2f max=%.2f windows=%d",
             rate, tickrate, ratio, g_maxRatio[client], g_strikes[client]);
 
         L4D2AC_Report(client, "speedhack", severity, detail);
