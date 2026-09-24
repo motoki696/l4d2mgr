@@ -576,3 +576,50 @@ def submit_detection(server_id: int, det_id: int, reviewer: str, reviewer_ip: st
         raise
     finally:
         conn.close()
+# ============================================================
+# 以下を web/l4d2mgr_web/core.py の末尾に追記する
+# ファイル冒頭の import に re が無ければ追加（既に import re 済みのはず）
+# ============================================================
+
+_COUNTRY_FILTER_TABLE = f"`{settings.mgr_db}`.`country_filter_blocklist`"
+COUNTRY_CODE_RE = re.compile(r"^[A-Z]{2}$")
+
+
+def list_country_filters() -> List[Dict[str, Any]]:
+    sql = f"SELECT id, country_code, added_by, added_at FROM {_COUNTRY_FILTER_TABLE} ORDER BY country_code"
+    with get_conn() as conn:
+        with conn.cursor() as cur:
+            cur.execute(sql)
+            return cur.fetchall()
+
+
+def add_country_filter(country_code: str, added_by: str) -> None:
+    if not COUNTRY_CODE_RE.fullmatch(country_code):
+        raise ValueError("Invalid country code")
+    sql = f"INSERT INTO {_COUNTRY_FILTER_TABLE} (country_code, added_by) VALUES (%s, %s)"
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, (country_code, added_by))
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
+def delete_country_filter(entry_id: int) -> bool:
+    sql = f"DELETE FROM {_COUNTRY_FILTER_TABLE} WHERE id = %s"
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(sql, (entry_id,))
+            deleted = cur.rowcount > 0
+        conn.commit()
+        return deleted
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}国コードブロックリスト - L4D2 Manager{% endblock %}
+{% block content %}
+<h2>国コードブロックリスト</h2>
+<div class="table-wrapper">
+<table>
+<thead><tr><th>#</th><th>国コード</th><th>追加者</th><th>追加日時</th><th>操作</th></tr></thead>
+<tbody>
+{% if filters %}
+{% for f in filters %}
+<tr>
+<td>{{ f.id }}</td>
+<td>{{ f.country_code }}</td>
+<td>{{ f.added_by }}</td>
+<td>{{ f.added_at }}</td>
+<td>
+<form action="/country-filter/{{ f.id }}/delete" method="post" style="display:inline;">
+<input type="hidden" name="csrf" value="{{ csrf }}">
+<button type="submit" class="btn btn-danger">削除</button>
+</form>
+</td>
+</tr>
+{% endfor %}
+{% else %}
+<tr><td colspan="5">登録なし</td></tr>
+{% endif %}
+</tbody>
+</table>
+</div>
+<form action="/country-filter/add" method="post" class="form">
+<input type="hidden" name="csrf" value="{{ csrf }}">
+<label>国コード (ISO 3166-1 alpha-2)</label>
+<input type="text" name="code" autocomplete="off" required pattern="[A-Za-z]{2}" maxlength="2" class="input">
+<button type="submit" class="btn btn-primary">追加</button>
+</form>
+<p>変更は保存時にゲームサーバーへ自動反映されます (sm_l4d2cf_reload)。</p>
+{% endblock %}
