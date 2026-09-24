@@ -35,7 +35,7 @@ pre{background:#2e2e2e;padding:0.5rem;max-height:320px;overflow:auto;border-radi
 <h1>L4D2 Manager</h1>
 {% if admin %}
 <div class="admin">
-<a href="/">ダッシュボード</a>&nbsp;|&nbsp;<a href="/detections">検知一覧</a>&nbsp;|&nbsp;<a href="/country-filter">国コードブロック</a>&nbsp;&nbsp;<span>{{ admin.user }}</span>
+<a href="/">ダッシュボード</a>&nbsp;|&nbsp;<a href="/detections">検知一覧</a>&nbsp;|&nbsp;<a href="/rotation">マップローテーション</a>&nbsp;|&nbsp;<a href="/country-filter">設定</a>&nbsp;&nbsp;<span>{{ admin.user }}</span>
 <form action="/logout" method="post" class="form">
 <input type="hidden" name="csrf" value="{{ csrf }}">
 <button type="submit" class="btn btn-secondary">ログアウト</button>

@@ -1,14 +1,14 @@
 {% extends "base.html" %}
 {% block title %}ダッシュボード - L4D2 Manager{% endblock %}
 {% block content %}
-<h2>サーバー状態 (サーバー ID {{ server_id }})</h2>
+<h2>① サーバー状態 (サーバー ID {{ server_id }})</h2>
 {% if status_error %}
 <div class="flash error">{{ status_error }}</div>
 {% else %}
 <pre>{{ status_text }}</pre>
 {% endif %}
 
-<h2>マップ操作</h2>
+<h2>② マップ操作</h2>
 <form action="/server/changelevel" method="post" class="form">
 <input type="hidden" name="csrf" value="{{ csrf }}">
 <label>マップ名</label>
@@ -24,57 +24,48 @@
 <input type="hidden" name="csrf" value="{{ csrf }}">
 <button type="submit" class="btn btn-secondary">次のキャンペーンへ</button>
 </form>
+<p><a href="/rotation">→ マップローテーションの管理</a></p>
 
-<h2>キャンペーンローテーション</h2>
+<h2>③ 未対応検知 <a href="/detections" style="font-size:0.7rem;">(すべて見る →)</a></h2>
 <div class="table-wrapper">
 <table>
-<thead>
-<tr><th>#</th><th>マップ</th><th>状態</th><th>操作</th></tr>
-</thead>
+<thead><tr><th>#</th><th>時刻(UTC)</th><th>検知器</th><th>重大度</th><th>プレイヤー</th><th>マップ</th></tr></thead>
 <tbody>
-{% if rotation %}
-{% for r in rotation %}
-<tr class="{{ 'disabled' if not r.enabled }}">
-<td>{{ r.position }}</td>
-<td>{{ r.map }}</td>
-<td>{{ '有効' if r.enabled else '無効' }}</td>
-<td>
-{% if not loop.first %}
-<form action="/rotation/{{ r.id }}/move" method="post" style="display:inline;">
-<input type="hidden" name="csrf" value="{{ csrf }}">
-<input type="hidden" name="direction" value="up">
-<button type="submit" class="btn btn-secondary">▲</button>
-</form>
-{% endif %}
-{% if not loop.last %}
-<form action="/rotation/{{ r.id }}/move" method="post" style="display:inline;">
-<input type="hidden" name="csrf" value="{{ csrf }}">
-<input type="hidden" name="direction" value="down">
-<button type="submit" class="btn btn-secondary">▼</button>
-</form>
-{% endif %}
-<form action="/rotation/{{ r.id }}/toggle" method="post" style="display:inline;">
-<input type="hidden" name="csrf" value="{{ csrf }}">
-<button type="submit" class="btn btn-secondary">{{ '無効化' if r.enabled else '有効化' }}</button>
-</form>
-<form action="/rotation/{{ r.id }}/delete" method="post" style="display:inline;">
-<input type="hidden" name="csrf" value="{{ csrf }}">
-<button type="submit" class="btn btn-danger">削除</button>
-</form>
-</td>
+{% if new_detections %}
+{% for d in new_detections %}
+<tr>
+<td>{{ d.id }}</td>
+<td>{{ d.ts }}</td>
+<td>{{ d.detector }}</td>
+<td>{{ d.severity }}</td>
+<td>{{ d.name }}<br><small>{{ d.steamid }}</small></td>
+<td>{{ d.map }}</td>
 </tr>
 {% endfor %}
 {% else %}
-<tr><td colspan="4">登録なし</td></tr>
+<tr><td colspan="6">未対応の検知はありません</td></tr>
 {% endif %}
 </tbody>
 </table>
 </div>
-<form action="/rotation/add" method="post" class="form">
-<input type="hidden" name="csrf" value="{{ csrf }}">
-<label>マップ名</label>
-<input type="text" name="map_name" autocomplete="off" required pattern="[A-Za-z0-9_]{1,64}" class="input">
-<button type="submit" class="btn btn-primary">追加</button>
-</form>
-<p>変更は保存時にゲームサーバーへ自動反映されます (sm_rotation_reload)。</p>
+
+<h2>④ Blockされている国 <a href="/country-filter" style="font-size:0.7rem;">(設定で管理 →)</a></h2>
+<div class="table-wrapper">
+<table>
+<thead><tr><th>国コード</th><th>追加者</th><th>追加日時</th></tr></thead>
+<tbody>
+{% if country_filters %}
+{% for f in country_filters %}
+<tr>
+<td>{{ f.country_code }}</td>
+<td>{{ f.added_by }}</td>
+<td>{{ f.added_at }}</td>
+</tr>
+{% endfor %}
+{% else %}
+<tr><td colspan="3">登録なし</td></tr>
+{% endif %}
+</tbody>
+</table>
+</div>
 {% endblock %}
