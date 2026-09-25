@@ -207,6 +207,43 @@ r = c.get("/detections?status=all")
 check("status=all shows both", str(d1) in r.text and "legit" in r.text)
 check("bad status param falls back", c.get("/detections?status=zzz").status_code == 200)
 
+sql("DELETE FROM l4d2mgr.country_filter_blocklist WHERE country_code='ZZ'")
+r = c.post("/country-filter/add", data={"code":"zz","csrf":"bad"})
+check("country-filter add rejects bad csrf", r.status_code==403)
+
+r_cf = c.get("/country-filter")
+tok = csrf_of(r_cf.text)
+
+RCON_LOG.clear()
+r = c.post("/country-filter/add", data={"code":"zz","csrf":tok})
+
+check("country-filter add uppercases code", sql("SELECT COUNT(*) FROM l4d2mgr.country_filter_blocklist WHERE country_code='ZZ'")=="1")
+check("country-filter add triggers reload", "sm_l4d2cf_reload" in RCON_LOG, RCON_LOG)
+
+before = sql("SELECT COUNT(*) FROM l4d2mgr.country_filter_blocklist")
+r = c.post("/country-filter/add", data={"code":"ZZ","csrf":tok})
+check("country-filter add rejects duplicate", sql("SELECT COUNT(*) FROM l4d2mgr.country_filter_blocklist")==before)
+
+r = c.post("/country-filter/add", data={"code":"1A","csrf":tok})
+check("country-filter add rejects invalid format", sql("SELECT COUNT(*) FROM l4d2mgr.country_filter_blocklist")==before)
+
+zz_id = sql("SELECT id FROM l4d2mgr.country_filter_blocklist WHERE country_code='ZZ'")
+
+r = c.post(f"/country-filter/{zz_id}/delete", data={"csrf":"bad"})
+check("country-filter delete rejects bad csrf", r.status_code==403)
+
+RCON_LOG.clear()
+r = c.post(f"/country-filter/{zz_id}/delete", data={"csrf":tok})
+
+check("country-filter delete removes", sql(f"SELECT COUNT(*) FROM l4d2mgr.country_filter_blocklist WHERE id={zz_id}")=="0")
+check("country-filter delete triggers reload", "sm_l4d2cf_reload" in RCON_LOG, RCON_LOG)
+
+r = c.post(f"/country-filter/999999/delete", data={"csrf":tok})
+check("country-filter delete missing id handled", r.status_code==303)
+
+acts2 = sql("SELECT GROUP_CONCAT(DISTINCT action) FROM l4d2mgr.audit_log")
+check("country-filter actions audited", all(a in acts2 for a in ["country_filter_add","country_filter_delete"]), acts2)
+
 npass = sum(1 for _, ok, _ in results if ok)
 for n, ok, info in results:
     print(("PASS " if ok else "FAIL ") + n + ("" if ok else f"   -> {info}"))
